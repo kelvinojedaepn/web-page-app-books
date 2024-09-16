@@ -10,7 +10,7 @@ const BooksList = ({ books, onEdit, token, onBookDeleted, searchTerm }) => {
     const handleDelete = (id) => {
         deleteBook(id, token)
             .then(() => {
-                onBookDeleted();  // Llamamos a onBookDeleted para actualizar la lista después de eliminar
+                onBookDeleted();  // Actualizamos la lista después de eliminar
             })
             .catch(error => console.error('Error al eliminar libro:', error));
     };
@@ -25,11 +25,14 @@ const BooksList = ({ books, onEdit, token, onBookDeleted, searchTerm }) => {
     const indexOfFirstBook = indexOfLastBook - booksPerPage;
     const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
 
-    // Función para paginación
+    // Función para avanzar a la siguiente página
     const handleNextPage = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
+        if (indexOfLastBook < filteredBooks.length) {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
     };
 
+    // Función para retroceder a la página anterior
     const handlePreviousPage = () => {
         if (currentPage > 1) {
             setCurrentPage((prevPage) => prevPage - 1);
@@ -40,44 +43,49 @@ const BooksList = ({ books, onEdit, token, onBookDeleted, searchTerm }) => {
         <div className="container mx-auto p-6">
             <h1 className="text-2xl font-bold mb-4">Libros</h1>
 
-            <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                <tr className="bg-gray-100 border-b">
-                    <th className="py-2 px-4 border-b">Título</th>
-                    <th className="py-2 px-4 border-b">Autor</th>
-                    <th className="py-2 px-4 border-b">Año</th>
-                    <th className="py-2 px-4 border-b">Género</th>
-                    <th className="py-2 px-4 border-b">Idioma</th>
-                    <th className="py-2 px-4 border-b">Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                {currentBooks.map((book) => (
-                    <tr key={book.id} className="border-b">
-                        <td className="py-2 px-4 border-b">{book.title}</td>
-                        <td className="py-2 px-4 border-b">{book.author}</td>
-                        <td className="py-2 px-4 border-b">{book.year}</td>
-                        <td className="py-2 px-4 border-b">{book.genre}</td>
-                        <td className="py-2 px-4 border-b">{book.language}</td>
-                        <td className="py-2 px-4 border-b flex space-x-2">
-                            <Link
-                                to={`/edit/${book.id}`}
-                                className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
-                                onClick={() => onEdit(book)}
-                            >
-                                Editar
-                            </Link>
-                            <button
-                                onClick={() => handleDelete(book.id)}
-                                className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
-                            >
-                                Eliminar
-                            </button>
-                        </td>
+            {/* Si no hay libros, mostramos un mensaje */}
+            {currentBooks.length === 0 ? (
+                <p className="text-gray-500">No hay libros disponibles.</p>
+            ) : (
+                <table className="min-w-full bg-white border border-gray-200">
+                    <thead>
+                    <tr className="bg-gray-100 border-b">
+                        <th className="py-2 px-4 border-b">Título</th>
+                        <th className="py-2 px-4 border-b">Autor</th>
+                        <th className="py-2 px-4 border-b">Año</th>
+                        <th className="py-2 px-4 border-b">Género</th>
+                        <th className="py-2 px-4 border-b">Idioma</th>
+                        <th className="py-2 px-4 border-b">Acciones</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {currentBooks.map((book) => (
+                        <tr key={book.id} className="border-b">
+                            <td className="py-2 px-4 border-b">{book.title}</td>
+                            <td className="py-2 px-4 border-b">{book.author}</td>
+                            <td className="py-2 px-4 border-b">{book.year}</td>
+                            <td className="py-2 px-4 border-b">{book.genre}</td>
+                            <td className="py-2 px-4 border-b">{book.language}</td>
+                            <td className="py-2 px-4 border-b flex space-x-2">
+                                <Link
+                                    to={`/edit/${book.id}`}
+                                    className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                                    onClick={() => onEdit(book)}
+                                >
+                                    Editar
+                                </Link>
+                                <button
+                                    onClick={() => handleDelete(book.id)}
+                                    className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+                                >
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
 
             {/* Paginación */}
             <div className="mt-4 flex justify-between">
